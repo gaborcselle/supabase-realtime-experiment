@@ -27,6 +27,32 @@ export default function GameField() {
         return lightColors[index];
     };
 
+    // Subscribe to real-time updates
+    const channelA = supabase
+    .channel("game-fields-changes")
+    .on('postgres_changes',
+        {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'game_fields',
+        },(payload:any) => 
+        {
+        console.log(payload.new);
+        const updatedGameField = payload.new;
+        const updatedGameFields = gameFields.map((gameField) => {
+            if (gameField.id === updatedGameField.id) {
+                return {
+                    ...gameField,
+                    owner: updatedGameField.owner,
+                    color: nameHashColor(updatedGameField.owner)
+                };
+            }
+            return gameField;
+        });
+        setGameFields(updatedGameFields);
+        })
+    .subscribe();
+
     useEffect(() => {
         const fetchGameFields = async () => {
             try {
@@ -52,6 +78,34 @@ export default function GameField() {
         fetchGameFields();
     }, []);
 
+    const handleFieldClick = (index: number) => {
+        const updatedGameFields = [...gameFields];
+        updatedGameFields[index].owner = nameValue;
+        updatedGameFields[index].color = nameHashColor(nameValue);
+
+        const updateGameField = async (index: number) => {
+            try {
+                const { data, error } = await supabase
+                    .from("game_fields")
+                    .update({ owner: nameValue })
+                    .eq("id", updatedGameFields[index].id);
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                console.log("Game field updated successfully:", data);
+            } catch (error) {
+                console.error("Error updating game field:", error);
+            }
+        };
+
+        updateGameField(index);
+        setGameFields(updatedGameFields);
+    };
+
+
+    
     return (
         <div>
             <div>
@@ -65,10 +119,9 @@ export default function GameField() {
                     className='border-2 border-gray-500 rounded-md p-2 w-1/4 ml-2'
                 />
             </div>
-
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(4, 1fr)", gap: "10px", height: "80vh", width: "100vw" }}>
                 {gameFields.map((gameField, index) => (
-                    <div key={index} style={{ border: "1px solid black", background: gameField.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div key={index} style={{ border: "1px solid black", background: gameField.color, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => handleFieldClick(index)}>
                         {gameField.owner} {gameField.id}
                     </div>
                 ))}
