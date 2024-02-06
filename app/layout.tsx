@@ -7,7 +7,7 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Realitme Clicky Demo",
+  title: "Realtime plant-your-flag",
   description: "Just a little realtime demo with Supabase",
 };
 
