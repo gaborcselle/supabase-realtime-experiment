@@ -121,7 +121,7 @@ export default function GameField() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gridTemplateRows: "repeat(4, 1fr)", gap: "10px", height: "80vh", width: "100vw" }}>
                 {gameFields.map((gameField, index) => (
-                    <div key={index} style={{ border: "1px solid black", background: gameField.color, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => handleFieldClick(index)}>
+                    <div key={index} className="text-slate-900 dark:text-slate-900" style={{ border: "1px solid black", background: gameField.color, display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => handleFieldClick(index)}>
                         {gameField.owner} {gameField.id}
                     </div>
                 ))}
